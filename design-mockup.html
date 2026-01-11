@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horus Heresy - Current Design Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+  
+  <div class="max-w-6xl mx-auto">
+    
+    <!-- Header -->
+    <header class="mb-6">
+      <a href="#" class="text-blue-600 hover:underline mb-2 inline-block">← Back to Lists</a>
+      <div class="flex justify-between items-start">
+        <div>
+          <h1 class="text-3xl font-bold">Sons of Horus Strike Force</h1>
+          <div class="flex gap-4 mt-2 text-sm text-gray-600">
+            <span>Legiones Astartes</span>
+            <span>•</span>
+            <span>Sons of Horus</span>
+            <span>•</span>
+            <span>Traitor</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-2xl font-bold">650 / 2000 pts</div>
+          <div class="text-sm text-green-600">✓ Valid</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Detachment Card (Expanded State) -->
+    <div class="bg-white rounded-lg shadow mb-6">
+      <!-- Header -->
+      <div class="p-6 border-b">
+        <div class="flex justify-between items-start">
+          <div>
+            <h2 class="text-xl font-bold">Crusade Primary Detachment</h2>
+            <div class="flex items-center gap-2">
+              <p class="text-sm text-gray-500">Primary Detachment</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-semibold">650 pts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6 space-y-6">
+        
+        <!-- Role Section: High Command -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <h3 class="font-semibold text-gray-700">High Command</h3>
+            <span class="text-sm text-gray-500">(1)</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Filled Slot -->
+            <div class="border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <div class="font-semibold">Praetor</div>
+                  <div class="text-sm text-gray-600">High Command</div>
+                </div>
+                <div class="text-right">
+                  <div class="font-bold">137 pts</div>
+                  <div class="text-xs text-gray-500">120 + 17</div>
+                </div>
+              </div>
+              <div class="text-xs text-gray-600 mb-2">
+                <div>• Paragon Blade (+15 pts)</div>
+                <div>• Astartes Shotgun (+2 pts)</div>
+              </div>
+              <div class="flex gap-2 mt-3 pt-3 border-t">
+                <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Edit</a>
+                <button class="text-sm text-red-600 hover:text-red-800">Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role Section: Command -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <h3 class="font-semibold text-gray-700">Command</h3>
+            <span class="text-sm text-gray-500">(3)</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Prime Slot - Filled -->
+            <div class="border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <div class="font-semibold">Centurion</div>
+                  <div class="text-sm text-gray-600">
+                    <span class="text-yellow-600 font-semibold">⭐ Prime • </span>
+                    Command
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="font-bold">75 pts</div>
+                </div>
+              </div>
+              <div class="text-xs text-yellow-700 font-semibold mb-2">
+                ⭐ Combat Veterans
+              </div>
+              <div class="flex gap-2 mt-3 pt-3 border-t">
+                <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Edit</a>
+                <button class="text-sm text-red-600 hover:text-red-800">Remove</button>
+              </div>
+            </div>
+            
+            <!-- Empty Slot -->
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-500">Slot 2</div>
+                <button class="text-sm text-blue-600 hover:text-blue-800 font-semibold">+ Add Unit</button>
+              </div>
+            </div>
+
+            <!-- Empty Slot -->
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-500">Slot 3</div>
+                <button class="text-sm text-blue-600 hover:text-blue-800 font-semibold">+ Add Unit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role Section: Troops -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <h3 class="font-semibold text-gray-700">Troops</h3>
+            <span class="text-sm text-gray-500">(4)</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Filled Slot with Prime -->
+            <div class="border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <div class="font-semibold">Tactical Squad</div>
+                  <div class="text-sm text-gray-600">
+                    <span class="text-yellow-600 font-semibold">⭐ Prime • </span>
+                    Troops
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="font-bold">150 pts</div>
+                </div>
+              </div>
+              <div class="flex gap-2 mt-3 pt-3 border-t">
+                <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Edit</a>
+                <button class="text-sm text-red-600 hover:text-red-800">Remove</button>
+              </div>
+            </div>
+
+            <!-- Empty slots -->
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-500">Slot 2</div>
+                <button class="text-sm text-blue-600 hover:text-blue-800 font-semibold">+ Add Unit</button>
+              </div>
+            </div>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-500">Slot 3</div>
+                <button class="text-sm text-blue-600 hover:text-blue-800 font-semibold">+ Add Unit</button>
+              </div>
+            </div>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-500">Slot 4</div>
+                <button class="text-sm text-blue-600 hover:text-blue-800 font-semibold">+ Add Unit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Add Detachment Buttons -->
+      <div class="p-6 border-t space-y-3">
+        <button class="w-full px-4 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 font-semibold">
+          + Add Apex Detachment (1 available)
+        </button>
+        <button class="w-full px-4 py-3 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 font-semibold">
+          + Add Auxiliary Detachment (1 available)
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsed Detachment Example (for design reference) -->
+    <div class="bg-white rounded-lg shadow mb-6">
+      <div class="p-6">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            <div>
+              <h2 class="text-xl font-bold">Tactical Support Detachment</h2>
+              <p class="text-sm text-gray-500">Auxiliary Detachment • 3 units</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-semibold">288 pts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

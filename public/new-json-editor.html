@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Builder v3</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #0a0e14; color: #e8f0f2; padding: 20px; line-height: 1.6; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #09f; margin-bottom: 10px; font-size: 28px; }
+    .subtitle { color: #6a7a8a; margin-bottom: 30px; }
+    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel { background: #0a0e14; border: 2px solid #09f; border-radius: 10px; padding: 20px; }
+    .panel h2 { color: #09f; font-size: 18px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+    .group-card { background: #0a0e14; border: 1px solid #e8f0f2; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; color: #a0b0c0; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+    input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 10px; background: #0a0e14; border: 1px solid #e8f0f2; color: #e8f0f2; border-radius: 4px; font-size: 14px; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #09f; }
+    input:disabled, select:disabled { opacity: 0.3; cursor: not-allowed; }
+    .radio-group { display: flex; gap: 20px; }
+    .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .radio-option input[type="radio"] { width: 20px; height: 20px; cursor: pointer; }
+    .btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background: #09f; color: #0a0e14; }
+    .btn-secondary { background: transparent; color: #09f; border: 1px solid #09f; }
+    .btn-danger { background: transparent; color: #fb2c36; border: 1px solid #fb2c36; }
+    .btn-small { padding: 6px 12px; font-size: 11px; }
+    .option-row { display: grid; grid-template-columns: auto 2fr 1fr 1.5fr auto; gap: 10px; align-items: end; margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 4px; }
+    .option-header { display: grid; grid-template-columns: auto 2fr 1fr 1.5fr auto; gap: 10px; margin-bottom: 5px; padding: 0 10px; }
+    .option-header label { margin: 0; }
+    .group-actions { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #6a7a8a; }
+    .output-section { position: sticky; top: 20px; }
+    textarea#jsonOutput { min-height: 500px; font-family: 'Courier New', monospace; font-size: 12px; resize: vertical; }
+    .output-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    .success-message { background: #10b981; color: white; padding: 10px; border-radius: 4px; margin-top: 10px; display: none; }
+    .option-type-badge { background: #09f; color: #0a0e14; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+    .list-ref-badge { background: #10b981; }
+    .regular-badge { background: #6a7a8a; }
+    @media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } .output-section { position: static; } }
+    #detachmentGroups { display: none; }
+    #equipmentGroups { display: block; }
+    .role-row { display: grid; grid-template-columns: 2fr 1fr 2fr auto; gap: 10px; align-items: end; margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 4px; }
+    .role-header { display: grid; grid-template-columns: 2fr 1fr 2fr auto; gap: 10px; margin-bottom: 5px; padding: 0 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>JSON Builder v3</h1>
+    <p class="subtitle" id="subtitle">Build equipment options • Dropdown for Weapon Lists! 🎯</p>
+    <div class="form-group">
+      <label>Mode</label>
+      <div class="radio-group">
+        <label class="radio-option"><input type="radio" name="mode" value="equipment" checked onchange="switchMode('equipment')"><span>Equipment Options</span></label>
+        <label class="radio-option"><input type="radio" name="mode" value="detachment" onchange="switchMode('detachment')"><span>Detachment Builder</span></label>
+      </div>
+    </div>
+    <div class="layout">
+      <div class="panel">
+        <h2 id="inputTitle">Equipment Groups</h2>
+        <div id="equipmentGroups">
+          <div id="equipment-groups-container"></div>
+          <button class="btn btn-primary" onclick="addEquipmentGroup()">+ Add Equipment Group</button>
+        </div>
+        <div id="detachmentGroups">
+          <div id="detachment-groups-container"></div>
+          <button class="btn btn-primary" onclick="addDetachment()">+ Add Detachment</button>
+        </div>
+      </div>
+      <div class="panel output-section">
+        <h2>Output</h2>
+        <textarea id="jsonOutput" readonly></textarea>
+        <div class="output-actions">
+          <button class="btn btn-primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+          <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+          <button class="btn btn-secondary" onclick="loadTemplate()">Load Template</button>
+        </div>
+        <div id="successMessage" class="success-message">✓ Copied to clipboard!</div>
+      </div>
+    </div>
+  </div>
+  <script>
+// ⚙️ EDIT THIS LIST - Add your weapon lists here
+const WEAPON_LISTS = [
+  { id: 'officer-wargear', name: 'Officer Wargear' },
+  { id: 'sergeant-melee', name: 'Sergeant Melee' },
+  { id: 'legion-pistols', name: 'Legion Pistols' },
+  { id: 'combi-weapons', name: 'Legion Combi-Weapons' },
+  { id: 'special-weapons', name: 'Special Weapons' },
+  { id: 'heavy-weapons', name: 'Legion Heavy Weapons' },
+  { id: 'legion-equipment', name: 'Legion Equipment' },
+  { id: 'pintle-weapons', name: 'Pintle Weapons' },
+  { id: 'sponson-weapons', name: 'Sponson Weapons' },
+  { id: 'terminator-melee-weapons', name: 'Terminator Melee Weapons' },
+  // Add more lists as you create them in Supabase
+];
+
+let mode = 'equipment';
+let equipmentGroups = [], detachmentGroups = [];
+let equipmentCounter = 0, detachmentCounter = 0;
+
+function switchMode(newMode) {
+  mode = newMode;
+  document.getElementById('subtitle').textContent = mode === 'equipment' ? 'Build equipment options • Dropdown for Weapon Lists! 🎯' : 'Build detachments for Supabase';
+  document.getElementById('inputTitle').textContent = mode === 'equipment' ? 'Equipment Groups' : 'Detachments';
+  document.getElementById('equipmentGroups').style.display = mode === 'equipment' ? 'block' : 'none';
+  document.getElementById('detachmentGroups').style.display = mode === 'detachment' ? 'block' : 'none';
+  updateJSON();
+}
+
+// Equipment functions
+function addEquipmentGroup() {
+  equipmentGroups.push({ id: equipmentCounter++, label: '', type: 'radio', mutuallyExclusive: true, options: [] });
+  renderEquipmentGroups();
+  updateJSON();
+}
+function removeEquipmentGroup(id) {
+  const i = equipmentGroups.findIndex(g => g.id === id);
+  if (i > -1) equipmentGroups.splice(i, 1);
+  renderEquipmentGroups();
+  updateJSON();
+}
+function updateEquipmentGroupField(id, field, value) {
+  const g = equipmentGroups.find(g => g.id === id);
+  if (g) {
+    g[field] = value;
+    if (field === 'type') g.mutuallyExclusive = value === 'radio';
+  }
+  updateJSON();
+}
+function addEquipmentOption(id, optionType = 'regular') {
+  const g = equipmentGroups.find(g => g.id === id);
+  if (g) {
+    if (optionType === 'list') {
+      g.options.push({ type: 'weapon_list_reference', list_id: '', replaces: [] });
+    } else {
+      g.options.push({ name: '', cost: 0, replaces: [] });
+    }
+  }
+  renderEquipmentGroups();
+  updateJSON();
+}
+function removeEquipmentOption(id, i) {
+  const g = equipmentGroups.find(g => g.id === id);
+  if (g) g.options.splice(i, 1);
+  renderEquipmentGroups();
+  updateJSON();
+}
+function updateEquipmentOption(id, i, field, value) {
+  const g = equipmentGroups.find(g => g.id === id);
+  if (g && g.options[i]) {
+    if (field === 'replaces') {
+      g.options[i][field] = value.split(',').map(s => s.trim()).filter(s => s);
+    } else if (field === 'cost') {
+      g.options[i][field] = parseInt(value) || 0;
+    } else {
+      g.options[i][field] = value;
+    }
+  }
+  updateJSON();
+}
+function renderEquipmentGroups() {
+  document.getElementById('equipment-groups-container').innerHTML = equipmentGroups.map(g => `
+    <div class="group-card">
+      <div class="form-group">
+        <label>Group Label</label>
+        <input type="text" value="${g.label}" onchange="updateEquipmentGroupField(${g.id}, 'label', this.value)" placeholder="e.g., Replace Bolter">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="type-${g.id}" value="radio" ${g.type === 'radio' ? 'checked' : ''} onchange="updateEquipmentGroupField(${g.id}, 'type', 'radio')"><span>Radio (One choice)</span></label>
+          <label class="radio-option"><input type="radio" name="type-${g.id}" value="checkbox" ${g.type === 'checkbox' ? 'checked' : ''} onchange="updateEquipmentGroupField(${g.id}, 'type', 'checkbox')"><span>Checkbox (Multiple)</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Options</label>
+        ${g.options.length > 0 ? `
+          <div class="option-header">
+            <label>Type</label>
+            <label>Name / Weapon List</label>
+            <label>Cost</label>
+            <label>Replaces (comma-separated)</label>
+            <label></label>
+          </div>
+        ` : ''}
+        ${g.options.map((o, i) => {
+          const isListRef = o.type === 'weapon_list_reference';
+          return `
+            <div class="option-row">
+              <span class="option-type-badge ${isListRef ? 'list-ref-badge' : 'regular-badge'}">${isListRef ? 'LIST' : 'ITEM'}</span>
+              ${isListRef ? `
+                <select onchange="updateEquipmentOption(${g.id}, ${i}, 'list_id', this.value)">
+                  <option value="">Select a weapon list...</option>
+                  ${WEAPON_LISTS.map(wl => `
+                    <option value="${wl.id}" ${o.list_id === wl.id ? 'selected' : ''}>${wl.name}</option>
+                  `).join('')}
+                </select>
+                <input type="text" value="(from list)" disabled>
+              ` : `
+                <input type="text" value="${o.name || ''}" onchange="updateEquipmentOption(${g.id}, ${i}, 'name', this.value)" placeholder="Weapon name">
+                <input type="number" value="${o.cost || 0}" onchange="updateEquipmentOption(${g.id}, ${i}, 'cost', this.value)" placeholder="0">
+              `}
+              <input type="text" value="${(o.replaces || []).join(', ')}" onchange="updateEquipmentOption(${g.id}, ${i}, 'replaces', this.value)" placeholder="Bolter, Pistol">
+              <button class="btn btn-danger btn-small" onclick="removeEquipmentOption(${g.id}, ${i})">×</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div class="group-actions">
+        <button class="btn btn-secondary btn-small" onclick="addEquipmentOption(${g.id}, 'regular')">+ Add Item</button>
+        <button class="btn btn-secondary btn-small" onclick="addEquipmentOption(${g.id}, 'list')">+ Add Weapon List</button>
+        <button class="btn btn-danger btn-small" onclick="removeEquipmentGroup(${g.id})">Delete Group</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Detachment functions
+function addDetachment() {
+  detachmentGroups.push({ id: detachmentCounter++, db_id: '', name: '', type: '', armies: ['All'], factions: ['All'], role_slots: [] });
+  renderDetachmentGroups();
+  updateJSON();
+}
+function removeDetachment(id) {
+  const i = detachmentGroups.findIndex(g => g.id === id);
+  if (i > -1) detachmentGroups.splice(i, 1);
+  renderDetachmentGroups();
+  updateJSON();
+}
+function updateDetachmentField(id, field, value) {
+  const g = detachmentGroups.find(g => g.id === id);
+  if (g) {
+    if (field === 'armies' || field === 'factions') {
+      g[field] = value.split(',').map(s => s.trim()).filter(s => s);
+      if (g[field].length === 0) g[field] = ['All'];
+    } else {
+      g[field] = value;
+    }
+  }
+  updateJSON();
+}
+function addRole(id) {
+  const g = detachmentGroups.find(g => g.id === id);
+  if (g) {
+    g.role_slots.push({ role: '', quantity: 1, primeSlots: [] });
+  }
+  renderDetachmentGroups();
+  updateJSON();
+}
+function removeRole(id, i) {
+  const g = detachmentGroups.find(g => g.id === id);
+  if (g) g.role_slots.splice(i, 1);
+  renderDetachmentGroups();
+  updateJSON();
+}
+function updateRole(id, i, field, value) {
+  const g = detachmentGroups.find(g => g.id === id);
+  if (g && g.role_slots[i]) {
+    if (field === 'primeSlots') {
+      g.role_slots[i][field] = value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+    } else if (field === 'quantity') {
+      g.role_slots[i][field] = parseInt(value) || 1;
+    } else {
+      g.role_slots[i][field] = value;
+    }
+  }
+  updateJSON();
+}
+function renderDetachmentGroups() {
+  document.getElementById('detachment-groups-container').innerHTML = detachmentGroups.map(g => `
+    <div class="group-card">
+      <div class="form-group">
+        <label>ID</label>
+        <input type="text" value="${g.db_id}" onchange="updateDetachmentField(${g.id}, 'db_id', this.value)" placeholder="e.g., crusade-primary">
+      </div>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" value="${g.name}" onchange="updateDetachmentField(${g.id}, 'name', this.value)" placeholder="e.g., Crusade Primary Detachment">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <input type="text" value="${g.type}" onchange="updateDetachmentField(${g.id}, 'type', this.value)" placeholder="e.g., Primary">
+      </div>
+      <div class="form-group">
+        <label>Armies (comma-separated)</label>
+        <input type="text" value="${g.armies.join(', ')}" onchange="updateDetachmentField(${g.id}, 'armies', this.value)" placeholder="All">
+      </div>
+      <div class="form-group">
+        <label>Factions (comma-separated)</label>
+        <input type="text" value="${g.factions.join(', ')}" onchange="updateDetachmentField(${g.id}, 'factions', this.value)" placeholder="All">
+      </div>
+      <div class="form-group">
+        <label>Role Slots</label>
+        ${g.role_slots.length > 0 ? `
+          <div class="role-header">
+            <label>Role</label>
+            <label>Quantity</label>
+            <label>Prime Slots (comma-separated numbers)</label>
+            <label></label>
+          </div>
+        ` : ''}
+        ${g.role_slots.map((r, i) => `
+          <div class="role-row">
+            <input type="text" value="${r.role}" onchange="updateRole(${g.id}, ${i}, 'role', this.value)" placeholder="e.g., High Command">
+            <input type="number" value="${r.quantity}" onchange="updateRole(${g.id}, ${i}, 'quantity', this.value)" placeholder="1">
+            <input type="text" value="${r.primeSlots.join(', ')}" onchange="updateRole(${g.id}, ${i}, 'primeSlots', this.value)" placeholder="1,2">
+            <button class="btn btn-danger btn-small" onclick="removeRole(${g.id}, ${i})">×</button>
+          </div>
+        `).join('')}
+      </div>
+      <div class="group-actions">
+        <button class="btn btn-secondary btn-small" onclick="addRole(${g.id})">+ Add Role Slot</button>
+        <button class="btn btn-danger btn-small" onclick="removeDetachment(${g.id})">Delete Detachment</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeCSV(value) {
+  if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+    return '"' + value.replace(/"/g, '""') + '"';
+  }
+  return value;
+}
+
+function updateJSON() {
+  const outputElement = document.getElementById('jsonOutput');
+  if (mode === 'equipment') {
+    const outputData = equipmentGroups.map(g => ({
+      type: g.type,
+      label: g.label,
+      mutuallyExclusive: g.mutuallyExclusive,
+      options: g.options
+    }));
+    outputElement.value = JSON.stringify(outputData, null, 2);
+  } else {
+    const headers = 'id,name,type,role_slots,armies,factions,created_at,updated_at';
+    const rows = detachmentGroups.map(g => [
+      g.db_id || '',
+      g.name || '',
+      g.type || '',
+      JSON.stringify(g.role_slots),
+      JSON.stringify(g.armies),
+      JSON.stringify(g.factions),
+      '',
+      ''
+    ].map(escapeCSV).join(','));
+    outputElement.value = headers + '\n' + rows.join('\n');
+  }
+}
+function copyToClipboard() {
+  const o = document.getElementById('jsonOutput');
+  o.select();
+  document.execCommand('copy');
+  const m = document.getElementById('successMessage');
+  m.style.display = 'block';
+  setTimeout(() => m.style.display = 'none', 2000);
+}
+function clearAll() {
+  if (confirm('Clear all in current mode?')) {
+    if (mode === 'equipment') {
+      equipmentGroups = [];
+      equipmentCounter = 0;
+      renderEquipmentGroups();
+    } else {
+      detachmentGroups = [];
+      detachmentCounter = 0;
+      renderDetachmentGroups();
+    }
+    updateJSON();
+  }
+}
+function loadTemplate() {
+  if (mode === 'equipment') {
+    if (confirm('Load equipment template with weapon list reference?')) {
+      equipmentGroups = [
+        {
+          id: equipmentCounter++,
+          label: 'Sergeant: Replace Bolt Pistol',
+          type: 'radio',
+          mutuallyExclusive: true,
+          options: [
+            { name: 'Power Sword', cost: 10, replaces: ['Bolt Pistol'] },
+            { type: 'weapon_list_reference', list_id: 'legion-pistols', replaces: ['Bolt Pistol'] }
+          ]
+        },
+        {
+          id: equipmentCounter++,
+          label: 'Additional Wargear',
+          type: 'checkbox',
+          mutuallyExclusive: false,
+          options: [
+            { name: 'Melta Bombs', cost: 5, replaces: [] }
+          ]
+        }
+      ];
+      renderEquipmentGroups();
+      updateJSON();
+    }
+  } else {
+    if (confirm('Load detachment template?')) {
+      detachmentGroups = [
+        {
+          id: detachmentCounter++,
+          db_id: 'crusade-primary',
+          name: 'Crusade Primary Detachment',
+          type: 'Primary',
+          armies: ['All'],
+          factions: ['All'],
+          role_slots: [
+            { role: 'High Command', quantity: 1, primeSlots: [] },
+            { role: 'Command', quantity: 3, primeSlots: [1] },
+            { role: 'Troops', quantity: 4, primeSlots: [1] },
+            { role: 'Transports', quantity: 4, primeSlots: [] }
+          ]
+        }
+      ];
+      renderDetachmentGroups();
+      updateJSON();
+    }
+  }
+}
+renderEquipmentGroups();
+renderDetachmentGroups();
+updateJSON();
+  </script>
+</body>
+</html>

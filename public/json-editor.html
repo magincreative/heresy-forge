@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equipment Options JSON Builder v3</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #0a0e14; color: #e8f0f2; padding: 20px; line-height: 1.6; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #09f; margin-bottom: 10px; font-size: 28px; }
+    .subtitle { color: #6a7a8a; margin-bottom: 30px; }
+    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel { background: #0a0e14; border: 2px solid #09f; border-radius: 10px; padding: 20px; }
+    .panel h2 { color: #09f; font-size: 18px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+    .group-card { background: #0a0e14; border: 1px solid #e8f0f2; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; color: #a0b0c0; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+    input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 10px; background: #0a0e14; border: 1px solid #e8f0f2; color: #e8f0f2; border-radius: 4px; font-size: 14px; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #09f; }
+    input:disabled, select:disabled { opacity: 0.3; cursor: not-allowed; }
+    .radio-group { display: flex; gap: 20px; }
+    .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .radio-option input[type="radio"] { width: 20px; height: 20px; cursor: pointer; }
+    .btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; font-size: 12px; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background: #09f; color: #0a0e14; }
+    .btn-secondary { background: transparent; color: #09f; border: 1px solid #09f; }
+    .btn-danger { background: transparent; color: #fb2c36; border: 1px solid #fb2c36; }
+    .btn-small { padding: 6px 12px; font-size: 11px; }
+    .option-row { display: grid; grid-template-columns: auto 2fr 1fr 1.5fr auto; gap: 10px; align-items: end; margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 4px; }
+    .option-header { display: grid; grid-template-columns: auto 2fr 1fr 1.5fr auto; gap: 10px; margin-bottom: 5px; padding: 0 10px; }
+    .option-header label { margin: 0; }
+    .group-actions { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #6a7a8a; }
+    .output-section { position: sticky; top: 20px; }
+    textarea#jsonOutput { min-height: 500px; font-family: 'Courier New', monospace; font-size: 12px; resize: vertical; }
+    .output-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    .success-message { background: #10b981; color: white; padding: 10px; border-radius: 4px; margin-top: 10px; display: none; }
+    .option-type-badge { background: #09f; color: #0a0e14; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+    .list-ref-badge { background: #10b981; }
+    .regular-badge { background: #6a7a8a; }
+    @media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } .output-section { position: static; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Equipment Options JSON Builder v3</h1>
+    <p class="subtitle">Build equipment options • Dropdown for Weapon Lists! 🎯</p>
+    <div class="layout">
+      <div class="panel">
+        <h2>Equipment Groups</h2>
+        <div id="groups"></div>
+        <button class="btn btn-primary" onclick="addGroup()">+ Add Equipment Group</button>
+      </div>
+      <div class="panel output-section">
+        <h2>JSON Output</h2>
+        <textarea id="jsonOutput" readonly></textarea>
+        <div class="output-actions">
+          <button class="btn btn-primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+          <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+          <button class="btn btn-secondary" onclick="loadTemplate()">Load Template</button>
+        </div>
+        <div id="successMessage" class="success-message">✓ Copied to clipboard!</div>
+      </div>
+    </div>
+  </div>
+  <script>
+// ⚙️ EDIT THIS LIST - Add your weapon lists here
+const WEAPON_LISTS = [
+  { id: 'officer-wargear', name: 'Officer Wargear' },
+  { id: 'sergeant-melee', name: 'Sergeant Melee' },
+  { id: 'legion-pistols', name: 'Legion Pistols' },
+  { id: 'combi-weapons', name: 'Legion Combi-Weapons' },
+  { id: 'special-weapons', name: 'Special Weapons' },
+  { id: 'heavy-weapons', name: 'Legion Heavy Weapons' },
+  { id: 'legion-equipment', name: 'Legion Equipment' },
+  { id: 'pintle-weapons', name: 'Pintle Weapons' },
+  { id: 'sponson-weapons', name: 'Sponson Weapons' },
+  { id: 'terminator-melee-weapons', name: 'Terminator Melee Weapons' },
+  // Add more lists as you create them in Supabase
+];
+
+let groupCounter = 0, groups = [];
+function addGroup() { groups.push({ id: groupCounter++, label: '', type: 'radio', mutuallyExclusive: true, options: [] }); renderGroups(); updateJSON(); }
+function removeGroup(id) { const i = groups.findIndex(g => g.id === id); if (i > -1) groups.splice(i, 1); renderGroups(); updateJSON(); }
+function updateGroupField(id, field, value) { const g = groups.find(g => g.id === id); if (g) { g[field] = value; if (field === 'type') g.mutuallyExclusive = value === 'radio'; } updateJSON(); }
+function addOption(id, optionType = 'regular') {
+  const g = groups.find(g => g.id === id);
+  if (g) {
+    if (optionType === 'list') {
+      g.options.push({ type: 'weapon_list_reference', list_id: '', replaces: [] });
+    } else {
+      g.options.push({ name: '', cost: 0, replaces: [] });
+    }
+  }
+  renderGroups(); updateJSON();
+}
+function removeOption(id, i) { const g = groups.find(g => g.id === id); if (g) g.options.splice(i, 1); renderGroups(); updateJSON(); }
+function updateOption(id, i, field, value) {
+  const g = groups.find(g => g.id === id);
+  if (g && g.options[i]) {
+    if (field === 'replaces') {
+      g.options[i][field] = value.split(',').map(s => s.trim()).filter(s => s);
+    } else if (field === 'cost') {
+      g.options[i][field] = parseInt(value) || 0;
+    } else {
+      g.options[i][field] = value;
+    }
+  }
+  updateJSON();
+}
+function renderGroups() {
+  document.getElementById('groups').innerHTML = groups.map(g => `
+    <div class="group-card">
+      <div class="form-group">
+        <label>Group Label</label>
+        <input type="text" value="${g.label}" onchange="updateGroupField(${g.id}, 'label', this.value)" placeholder="e.g., Replace Bolter">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="type-${g.id}" value="radio" ${g.type === 'radio' ? 'checked' : ''} onchange="updateGroupField(${g.id}, 'type', 'radio')"><span>Radio (One choice)</span></label>
+          <label class="radio-option"><input type="radio" name="type-${g.id}" value="checkbox" ${g.type === 'checkbox' ? 'checked' : ''} onchange="updateGroupField(${g.id}, 'type', 'checkbox')"><span>Checkbox (Multiple)</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Options</label>
+        ${g.options.length > 0 ? `
+          <div class="option-header">
+            <label>Type</label>
+            <label>Name / Weapon List</label>
+            <label>Cost</label>
+            <label>Replaces (comma-separated)</label>
+            <label></label>
+          </div>
+        ` : ''}
+        ${g.options.map((o, i) => {
+          const isListRef = o.type === 'weapon_list_reference';
+          return `
+            <div class="option-row">
+              <span class="option-type-badge ${isListRef ? 'list-ref-badge' : 'regular-badge'}">${isListRef ? 'LIST' : 'ITEM'}</span>
+              ${isListRef ? `
+                <select onchange="updateOption(${g.id}, ${i}, 'list_id', this.value)">
+                  <option value="">Select a weapon list...</option>
+                  ${WEAPON_LISTS.map(wl => `
+                    <option value="${wl.id}" ${o.list_id === wl.id ? 'selected' : ''}>${wl.name}</option>
+                  `).join('')}
+                </select>
+                <input type="text" value="(from list)" disabled>
+              ` : `
+                <input type="text" value="${o.name || ''}" onchange="updateOption(${g.id}, ${i}, 'name', this.value)" placeholder="Weapon name">
+                <input type="number" value="${o.cost || 0}" onchange="updateOption(${g.id}, ${i}, 'cost', this.value)" placeholder="0">
+              `}
+              <input type="text" value="${(o.replaces || []).join(', ')}" onchange="updateOption(${g.id}, ${i}, 'replaces', this.value)" placeholder="Bolter, Pistol">
+              <button class="btn btn-danger btn-small" onclick="removeOption(${g.id}, ${i})">×</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div class="group-actions">
+        <button class="btn btn-secondary btn-small" onclick="addOption(${g.id}, 'regular')">+ Add Item</button>
+        <button class="btn btn-secondary btn-small" onclick="addOption(${g.id}, 'list')">+ Add Weapon List</button>
+        <button class="btn btn-danger btn-small" onclick="removeGroup(${g.id})">Delete Group</button>
+      </div>
+    </div>
+  `).join('');
+}
+function updateJSON() {
+  document.getElementById('jsonOutput').value = JSON.stringify(groups.map(g => ({
+    type: g.type,
+    label: g.label,
+    mutuallyExclusive: g.mutuallyExclusive,
+    options: g.options
+  })), null, 2);
+}
+function copyToClipboard() {
+  const o = document.getElementById('jsonOutput');
+  o.select();
+  document.execCommand('copy');
+  const m = document.getElementById('successMessage');
+  m.style.display = 'block';
+  setTimeout(() => m.style.display = 'none', 2000);
+}
+function clearAll() { if (confirm('Clear all groups?')) { groups = []; groupCounter = 0; renderGroups(); updateJSON(); } }
+function loadTemplate() {
+  if (confirm('Load template with weapon list reference?')) {
+    groups = [
+      {
+        id: groupCounter++,
+        label: 'Sergeant: Replace Bolt Pistol',
+        type: 'radio',
+        mutuallyExclusive: true,
+        options: [
+          { name: 'Power Sword', cost: 10, replaces: ['Bolt Pistol'] },
+          { type: 'weapon_list_reference', list_id: 'legion-pistols', replaces: ['Bolt Pistol'] }
+        ]
+      },
+      {
+        id: groupCounter++,
+        label: 'Additional Wargear',
+        type: 'checkbox',
+        mutuallyExclusive: false,
+        options: [
+          { name: 'Melta Bombs', cost: 5, replaces: [] }
+        ]
+      }
+    ];
+    renderGroups(); updateJSON();
+  }
+}
+renderGroups(); updateJSON();
+  </script>
+</body>
+</html>

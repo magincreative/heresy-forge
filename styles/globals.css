@@ -1,26 +1,358 @@
+/* ============================================
+   FONT IMPORTS (must be first)
+   ============================================ */
+
+/* New Rocker - Display Font for Headers */
+@import url('https://fonts.googleapis.com/css2?family=New+Rocker&display=swap');
+
+/* Work Sans - Body Font */
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap');
+
+/* Tailwind CSS */
 @import "tailwindcss";
 
+/* ============================================
+   DESIGN TOKENS - HORUS HERESY THEME
+   ============================================ */
+
+@theme {
+  /* Primary Colors */
+  --color-void-black: #0a0e14;
+  --color-frost-white: #e8f0f2;
+  --color-mist-grey: #6a7a8a;
+  --color-chrome: #a0b0c0;
+  
+  /* Accent Colors */
+  --color-neon-blue: #0099ff;
+  --color-danger-red: #fb2c36;
+}
+
+/* ============================================
+   ROOT VARIABLES
+   ============================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Background Colors */
+  --background: var(--color-void-black);
+  --surface: var(--color-void-black);
+  
+  /* Text Colors */
+  --foreground: var(--color-frost-white);
+  --text-primary: var(--color-frost-white);
+  --text-secondary: var(--color-mist-grey);
+  --text-tertiary: var(--color-chrome);
+  --text-accent: var(--color-neon-blue);
+  
+  /* Accent Colors */
+  --accent-primary: var(--color-neon-blue);
+  --accent-danger: var(--color-danger-red);
+  
+  /* Border Colors */
+  --border-default: var(--color-frost-white);
+  --border-accent: var(--color-neon-blue);
+  --border-danger: var(--color-danger-red);
+  
+  /* Typography Scale */
+  --font-size-h1: 28px;
+  --font-size-h2: 24px;
+  --font-size-h3: 20px;
+  --font-size-h4: 16px;
+  --font-size-h5: 14px;
+  --font-size-h6: 12px;
+  --font-size-body: 14px;
+  --font-size-small: 12px;
+  
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.6;
+  
+  /* Letter Spacing */
+  --letter-spacing-wide: 5px;
+  --letter-spacing-normal: 0px;
+  
+  /* Spacing Scale */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  
+  /* Shadows */
+  --shadow-sm: 0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ============================================
+   BASE STYLES
+   ============================================ */
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: 'Work Sans', sans-serif;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+h1,h2,h3,h4,h5,h6 {
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-family: 'New Rocker', cursive;
+  font-weight: 400;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+h2, h3, h4, h5, h6 {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+}
+
+h5 {
+  font-size: var(--font-size-h5);
+}
+
+h6 {
+  font-size: var(--font-size-h6);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-accent {
+  color: var(--accent-primary);
+}
+
+.text-danger {
+  color: var(--accent-danger);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.bg-surface {
+  background-color: var(--surface);
+}
+
+.border-accent {
+  border-color: var(--border-accent);
+}
+
+.border-danger {
+  border-color: var(--border-danger);
+}
+
+/* ============================================
+   BUTTON COMPONENTS
+   ============================================ */
+
+.btn {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+  font-size: var(--font-size-h5);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.btn-lg {
+  padding: 12px 12px;
+  font-size: var(--font-size-h4);
+}
+
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: var(--color-void-black);
+  border: none;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--accent-primary);
+  border: 1px solid var(--border-accent);
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent-primary);
+}
+
+.btn-tertiary {
+  background-color: var(--foreground);
+  color: var(--background);
+  border: 2px solid var(--foreground);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(0, 153, 255, 0.1);
+}
+
+.btn-danger {
+  background-color: transparent;
+  color: var(--accent-danger);
+  border: 1px solid var(--border-danger);
+}
+
+.btn-danger:hover {
+  background-color: rgba(251, 44, 54, 0.1);
+}
+
+.btn-full {
+  width: 100%;
+  padding: var(--spacing-md);
+}
+
+/* ============================================
+   CARD COMPONENTS
+   ============================================ */
+
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-accent {
+  border-color: var(--border-accent);
+}
+
+.card-danger {
+  border-color: var(--border-danger);
+}
+
+/* ============================================
+   FORM INPUTS
+   ============================================ */
+input {
+  padding: 12px;
+  border-radius: 0px;
+  border: 2px solid;
+}
+
+/* ============================================
+   LAYOUT UTILITIES
+   ============================================ */
+
+.container {
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+/* ============================================
+   DARK MODE (if needed in future)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  /* Already dark by default - no changes needed */
+}
+
+/* ============================================
+   CUSTOM RADIO AND CHECKBOX STYLES
+   ============================================ */
+
+/* Hide default radio/checkbox */
+input[type="radio"],
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-default);
+  background-color: var(--surface);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* Square shape for both */
+input[type="radio"],
+input[type="checkbox"] {
+  border-radius: 0;
+}
+
+/* Hover state */
+input[type="radio"]:hover,
+input[type="checkbox"]:hover {
+  border-color: var(--accent-primary);
+}
+
+/* Checked state - border */
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+/* Checkmark for checkbox - changed to solid square */
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-void-black);
+}
+
+/* Dot for radio */
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 4px;
+  left: 4px;
+  background-color: var(--color-void-black);
+}
+
+/* Disabled state */
+input[type="radio"]:disabled,
+input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
