@@ -45,7 +45,7 @@ export default function ArmySummary({ list }) {
   return (
     <div className="card p-6 mb-6">
       {/* Header with Export Button */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex gap-4 justify-between items-center mb-6">
         <h3 className="text-2xl font-semibold tracking-wider">ARMY SUMMARY</h3>
         <button
           onClick={handleExportPDF}
@@ -72,7 +72,7 @@ export default function ArmySummary({ list }) {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-3 gap-6 mb-6">
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
         <div className="border border-white p-3">
           <p className="text-base font-semibold tracking-wide mb-1">Total Points</p>
           <p className="text-base font-normal">
@@ -133,10 +133,15 @@ export default function ArmySummary({ list }) {
                       const isLogisticalUnit = unit.isLogisticalBenefit === true
                       
                       return (
-                      <div key={idx} className="space-y-1">
+                      <div key={idx} className="space-y-2">
                         {/* Unit name and points */}
                         <div className="flex items-end justify-between">
                           <div className="flex items-center gap-2">
+                            {isLogisticalUnit && (
+                              <span className="text-xs text-accent font-bold uppercase border border-accent px-1 rounded">
+                                Logistical
+                              </span>
+                            )}
                             <span className="text-sm font-semibold tracking-wide">{unit.name}</span>
                           </div>
                           <div className="flex-1 mx-3 border-b border-dotted border-secondary mb-1"></div>
@@ -144,33 +149,52 @@ export default function ArmySummary({ list }) {
                             {unit.totalCost}pts
                           </span>
                         </div>
-                        {isLogisticalUnit && (
-                          <span className="text-xs text-accent font-bold uppercase border border-accent px-1 rounded">
-                            Logistical
-                          </span>
-                        )}
                         
                         {/* Prime Benefit */}
                         {unit.primeBenefit && (
-                          <p className="text-xs text-accent ml-2 mt-1">
+                          <p className="text-xs text-accent ml-2">
                             Prime: {unit.primeBenefit.name}
                           </p>
                         )}
                         
-                        {/* Equipment list OR base wargear */}
-                        {unit.equipment && unit.equipment.length > 0 ? (
-                          <ul className="text-sm text-white ml-5 list-disc">
-                            {unit.equipment.map((eq, eqIdx) => (
-                              <li key={eqIdx}>{eq.name}</li>
-                            ))}
-                          </ul>
-                        ) : unit.baseWargear && unit.baseWargear.length > 0 ? (
-                          <ul className="text-sm text-white ml-5 list-disc">
-                            {unit.baseWargear.map((wg, wgIdx) => (
-                              <li key={wgIdx}>{wg}</li>
-                            ))}
-                          </ul>
-                        ) : null}
+                        {/* Wargear and Special Rules in two columns */}
+                        <div className="grid grid-cols-1 gap-4 ml-2">
+                          {/* Wargear Column */}
+                          <div>
+                            {((unit.equipment && unit.equipment.length > 0) || (unit.baseWargear && unit.baseWargear.length > 0)) && (
+                              <>
+                                <p className="text-xs font-semibold text-white mb-1">Wargear</p>
+                                {unit.equipment && unit.equipment.length > 0 ? (
+                                  <ul className="text-sm text-white ml-3 list-disc">
+                                    {unit.equipment.map((eq, eqIdx) => (
+                                      <li key={eqIdx}>{eq.name}</li>
+                                    ))}
+                                  </ul>
+                                ) : unit.baseWargear && unit.baseWargear.length > 0 ? (
+                                  <ul className="text-sm text-white ml-3 list-disc">
+                                    {unit.baseWargear.map((wg, wgIdx) => (
+                                      <li key={wgIdx}>{wg}</li>
+                                    ))}
+                                  </ul>
+                                ) : null}
+                              </>
+                            )}
+                          </div>
+                          
+                          {/* Special Rules Column */}
+                          <div>
+                            {unit.specialRules && unit.specialRules.length > 0 && (
+                              <>
+                                <p className="text-xs font-semibold text-white mb-1">Special Rules</p>
+                                <ul className="text-sm text-white ml-3 list-disc">
+                                  {unit.specialRules.map((rule, ruleIdx) => (
+                                    <li key={ruleIdx}>{rule}</li>
+                                  ))}
+                                </ul>
+                              </>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     )})}
                   </div>

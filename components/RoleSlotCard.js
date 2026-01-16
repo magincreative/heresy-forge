@@ -146,20 +146,44 @@ export default function RoleSlotCard({ slot, role, detachment, list, onUpdate, o
         </div>
       </div>
 
-      {/* Show equipment OR base wargear */}
-      {unit.equipment && unit.equipment.length > 0 ? (
-        <ul className="text-tertiary mb-2 ml-2 list-disc list-inside">
-          {unit.equipment.map((eq, i) => (
-            <li key={i}>{eq.name} {eq.cost > 0 && `(+${eq.cost} pts)`}</li>
-          ))}
-        </ul>
-      ) : unit.baseWargear && unit.baseWargear.length > 0 ? (
-        <ul className="text-tertiary mb-2 ml-2 list-disc list-inside">
-          {unit.baseWargear.map((wg, i) => (
-            <li key={i}>{wg}</li>
-          ))}
-        </ul>
-      ) : null}
+      {/* Wargear and Special Rules in two columns */}
+      <div className="grid grid-cols-2 gap-4 mb-2">
+        {/* Wargear Column */}
+        <div>
+          {(unit.equipment && unit.equipment.length > 0) || (unit.baseWargear && unit.baseWargear.length > 0) ? (
+            <>
+              <h5 className="text-sm font-semibold mb-1">Wargear</h5>
+              {unit.equipment && unit.equipment.length > 0 ? (
+                <ul className="text-tertiary text-sm ml-2 list-disc list-inside">
+                  {unit.equipment.map((eq, i) => (
+                    <li key={i}>{eq.name} {eq.cost > 0 && `(+${eq.cost} pts)`}</li>
+                  ))}
+                </ul>
+              ) : unit.baseWargear && unit.baseWargear.length > 0 ? (
+                <ul className="text-tertiary text-sm ml-2 list-disc list-inside">
+                  {unit.baseWargear.map((wg, i) => (
+                    <li key={i}>{wg}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+
+        {/* Special Rules Column */}
+        <div>
+          {unit.specialRules && unit.specialRules.length > 0 && (
+            <>
+              <h5 className="text-sm font-semibold mb-1">Special Rules</h5>
+              <ul className="text-tertiary text-sm ml-2 list-disc list-inside">
+                {unit.specialRules.map((rule, i) => (
+                  <li key={i}>{rule}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="flex justify-end gap-2 mt-3 pt-3">
         <Link 

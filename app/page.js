@@ -7,40 +7,32 @@ import { useAuth } from '@/contexts/AuthContext'
 import { loadListsFromCloud, deleteListFromCloud, getLocalLists, saveLocalLists } from '@/lib/listSyncUtils'
 
 // Helper function to format relative time
-function getRelativeTime(date) {
+const getTimeAgo = (dateString) => {
+  if (!dateString) return 'recently'
+  
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return 'recently'
+  
   const now = new Date()
-  const past = new Date(date)
-  const diffInSeconds = Math.floor((now - past) / 1000)
+  const seconds = Math.floor((now - date) / 1000)
   
-  if (diffInSeconds < 60) return 'just now'
-  
-  const diffInMinutes = Math.floor(diffInSeconds / 60)
-  if (diffInMinutes < 60) {
-    return diffInMinutes === 1 ? '1 minute ago' : `${diffInMinutes} minutes ago`
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60
   }
   
-  const diffInHours = Math.floor(diffInMinutes / 60)
-  if (diffInHours < 24) {
-    return diffInHours === 1 ? '1 hour ago' : `${diffInHours} hours ago`
+  for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+    const interval = Math.floor(seconds / secondsInUnit)
+    if (interval >= 1) {
+      return `${interval} ${unit}${interval > 1 ? 's' : ''}`
+    }
   }
   
-  const diffInDays = Math.floor(diffInHours / 24)
-  if (diffInDays < 7) {
-    return diffInDays === 1 ? '1 day ago' : `${diffInDays} days ago`
-  }
-  
-  const diffInWeeks = Math.floor(diffInDays / 7)
-  if (diffInWeeks < 4) {
-    return diffInWeeks === 1 ? '1 week ago' : `${diffInWeeks} weeks ago`
-  }
-  
-  const diffInMonths = Math.floor(diffInDays / 30)
-  if (diffInMonths < 12) {
-    return diffInMonths === 1 ? '1 month ago' : `${diffInMonths} months ago`
-  }
-  
-  const diffInYears = Math.floor(diffInDays / 365)
-  return diffInYears === 1 ? '1 year ago' : `${diffInYears} years ago`
+  return 'just now'
 }
 
 export default function ListsPage() {
@@ -180,7 +172,10 @@ export default function ListsPage() {
                 </button>
               </div>
               <div className="text-secondary">
-                Updated <span suppressHydrationWarning>{getRelativeTime(list.updatedAt || list.createdAt)}</span>
+                <span>
+                  Updated {getTimeAgo(list.updatedAt)} ago
+                </span>
+
               </div>
             </div>
           ))}

@@ -385,7 +385,7 @@ export default function ArmyListPage() {
               )}
               {list.pointsLimit && (
                 <h3 className="mb-2">
-                  {list.pointsLimit && ` / ${list.pointsLimit}`} pts
+                  {list.totalPoints} / {list.pointsLimit} pts
                 </h3>
               )}
             <div className={`inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold uppercase border rounded text-accent border-accent`}>
