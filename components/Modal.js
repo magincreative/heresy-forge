@@ -24,7 +24,7 @@ export default function Modal({ title, onClose, children }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto mt-6">
           {children}
         </div>
       </div>

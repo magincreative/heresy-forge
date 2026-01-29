@@ -10,9 +10,11 @@ import RoleSlotSection from '@/sections/RoleSlotSection'
 import DetachmentCard from '@/components/DetachmentCard'
 import ValidationWarnings from '@/components/ValidationWarnings'
 import ArmySummary from '@/components/ArmySummary'
+import Modal from '@/components/Modal';
+import ListSettingsModal from '@/components/ListSettingsModal'
 import { useAuth } from '@/contexts/AuthContext'
 import { saveListToCloud, saveLocalLists, getLocalLists } from '@/lib/listSyncUtils'
-
+import InvalidUnitsWarning from '@/components/InvalidUnitsWarning'
 
 
 export default function ArmyListPage() {
@@ -24,6 +26,10 @@ export default function ArmyListPage() {
   const [availableDetachments, setAvailableDetachments] = useState({ apex: 0, auxiliary: 0 })
   const [changeLogisticalRoleData, setChangeLogisticalRoleData] = useState(null)
   const [changeRoleTrigger, setChangeRoleTrigger] = useState(null)
+  const [showListSettings, setShowListSettings] = useState(false)
+  const [invalidUnits, setInvalidUnits] = useState([])
+  const [pendingListUpdate, setPendingListUpdate] = useState(null)
+
 
   // Loads datas when the page opens
   useEffect(() => {
@@ -354,6 +360,62 @@ export default function ArmyListPage() {
     return { warnings, detachments: detachmentsWithValidity }
   }
 
+  const handleSaveListSettings = (updatedList) => {
+    saveList(updatedList)
+    setShowListSettings(false)
+    setSnackbar({
+      message: 'List settings updated successfully',
+      onUndo: null
+    })
+  }
+
+  const handleRemoveInvalidUnits = () => {
+    if (!pendingListUpdate) return
+    
+    // Create a Set of invalid unit names for faster lookup
+    const invalidUnitNames = new Set(invalidUnits.map(u => u.unitName))
+    
+    // Remove invalid units from all detachments
+    const updatedDetachments = pendingListUpdate.detachments.map(detachment => {
+      const validUnits = detachment.units.filter(unit => !invalidUnitNames.has(unit.name))
+      
+      // Recalculate detachment points
+      const detachmentPoints = validUnits.reduce((sum, u) => sum + u.totalCost, 0)
+      
+      return {
+        ...detachment,
+        units: validUnits,
+        totalPoints: detachmentPoints
+      }
+    })
+    
+    // Calculate new total points
+    const totalPoints = updatedDetachments.reduce((sum, d) => sum + d.totalPoints, 0)
+    
+    const finalList = {
+      ...pendingListUpdate,
+      detachments: updatedDetachments,
+      totalPoints
+    }
+    
+    saveList(finalList)
+    setInvalidUnits([])
+    setPendingListUpdate(null)
+    setSnackbar({
+      message: `List settings updated. ${invalidUnits.length} invalid ${invalidUnits.length === 1 ? 'unit' : 'units'} removed.`,
+      onUndo: null
+    })
+  }
+
+  const handleCancelInvalidUnits = () => {
+    setInvalidUnits([])
+    setPendingListUpdate(null)
+    setSnackbar({
+      message: 'List settings change cancelled',
+      onUndo: null
+    })
+  }
+
   const { warnings: validationWarnings, detachments: updatedDetachments } = validateDetachments()
 
   return (
@@ -366,9 +428,20 @@ export default function ArmyListPage() {
           </svg>
           <span className="text-sm font-normal">Back to Lists</span>
         </Link>
-        <div className="flex justify-between items-start gap-4">
+        <div className="flex justify-between items-start gap-4 sm:flex-row flex-col">
           <div className="flex-1">
-            <h2 className="mb-1">{list.name}</h2>
+            <div className="flex items-start">
+              <h2 className="mb-1">{list.name}</h2>
+              <button
+                onClick={() => setShowListSettings(true)}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                aria-label="Edit list settings"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-400 hover:text-accent">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+              </button>
+            </div>
             <div className="flex gap-2 text-secondary">
               <span>{list.army}</span>
               <span>•</span>
@@ -377,7 +450,7 @@ export default function ArmyListPage() {
               <span>{list.allegiance}</span>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
               {!list.pointsLimit && (
                 <h4 className="mb-2">
                   {list.totalPoints} pts
@@ -388,7 +461,7 @@ export default function ArmyListPage() {
                   {list.totalPoints} / {list.pointsLimit} pts
                 </h3>
               )}
-            <div className={`inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold uppercase border rounded text-accent border-accent`}>
+            <div className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold uppercase border rounded text-accent border-accent">
               Valid
             </div>
           </div>
@@ -397,6 +470,13 @@ export default function ArmyListPage() {
 
       {/* Validation Warnings */}
       <ValidationWarnings warnings={validationWarnings} />
+      
+      {/* Invalid Units Warning */}
+      <InvalidUnitsWarning
+        invalidUnits={invalidUnits}
+        onRemoveUnits={handleRemoveInvalidUnits}
+        onCancel={handleCancelInvalidUnits}
+      />
 
       {/* Detachments */}
         <section className="space-y-6">
@@ -431,6 +511,14 @@ export default function ArmyListPage() {
           message={snackbar.message}
           onUndo={snackbar.onUndo}
           onClose={() => setSnackbar(null)}
+        />
+      )}
+
+      {showListSettings && (
+        <ListSettingsModal
+          list={list}
+          onSave={handleSaveListSettings}
+          onClose={() => setShowListSettings(false)}
         />
       )}
     </>
