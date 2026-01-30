@@ -180,6 +180,10 @@ h6 {
    BUTTON COMPONENTS
    ============================================ */
 
+button:hover {
+  cursor: pointer;
+}
+
 .btn {
   font-family: 'Work Sans', sans-serif;
   font-weight: 700;
